@@ -1,0 +1,712 @@
+## Protein Ensemble GenerationThrough VariationalAutoencoder
+
+## Latent SpaceSampling
+
+#### SanaaMansoor,*MinkyungBaek,HahnbeomPark,Gyu Rie Lee, and DavidBaker
+
+```
+Cite This: J. Chem.TheoryComput.2024,20, 2689−2695 ReadOnline
+```
+### ACCESS Metrics& More ArticleRecommendations * sı SupportingInformation
+
+```
+ABSTRACT:Mapping the ensemble of protein conformations that
+contribute to function and can be targeted by smallmolecule drugs
+remainsan outstandingchallenge.Here,we explorethe use of variational
+autoencodersfor reducingthe challengeof dimensionalityin the protein
+structure ensemble generation problem. We convert high-dimensional
+proteinstructuraldata into a continuous,low-dimensionalrepresentation,
+carry out a searchin this space guidedby a structurequalitymetric,and
+then use RoseTTAFoldguidedby the sampledstructuralinformationto
+generate3D structures.We use this approachto generateensemblesfor the
+cancerrelevantproteinK-Ras,train the VAE on a subsetof the availableK-
+Ras crystalstructuresand MD simulationsnapshots,and assessthe extent
+of samplingclose to crystalstructureswithheldfrom training.We find that
+our latent space samplingprocedurerapidlygeneratesensembleswith high
+structuralqualityand is able to samplewithin1 Å of held-outcrystalstructures,with a consistencyhigherthan that of MD
+simulationor AlphaFold2prediction.The sampledstructuressufficientlyrecapitulatethe crypticpocketsin the held-outK-Ras
+structuresto allow for small moleculedocking.
+```
+```
+A major challengein drug discovery is identifying cryptic
+binding pockets that can be targeted by small molecule
+drugs.^1 −^3 Despiteconsiderableadvancesin single-statenative
+proteinstructurepredictionwith AlphaFold^4 and RoseTTA-
+Fold^5 in the past severalyears, generatingplausibleensembles
+of structures that can be populateduponbindinga small
+moleculeor duringproteinfunctionremainsan outstanding
+problem − AlphaFold and RoseTTAFold generate single
+structuresratherthan ensembles.Moleculardynamics(MD)
+trajectoriesgenerateproteinensemblesby simulatingprotein
+motionaroundthe native structureand are often used to
+generate ensemblesprior to small moleculedockingcalcu-
+lationsbut often fail to identifycrypticligandbindingpockets
+not presentin the unboundstructure^1 −3,6or requirevery long
+and hence highly compute-intensive simulations (typically
+subto-severalmicrosecondlevel).^7 −^9 Rosettafragmentassem-
+bly and minimization^10 and kinematicclosure^11 methodshave
+been used to modelproteinand loop conformationaldiversity,
+but these methodshave typicallynot sampledthe types of
+conformationalchangesinvolvedin crypticpocketformation.
+On the deep learning side, variationalautoencoders,which
+projectcomplexdata into a smallerdimensionlatentspace,
+have been used to generatealternativebackbonesfor general
+proteindesigntasks such as de novo designof 64 residue
+backbones,^12 graph-based protein design,^13 and Ig-fold
+modeling.^14 VAEshave been used previouslyto samplethe
+conformational spaceof proteins but have required visual
+inspection of the trainedlatent spaceto sample^15 or have
+```
+```
+focusedon mappingcorrelativefluctuationsin extensiveMD
+simulations of both the apo and holo states of a target
+protein.^16
+We reasoned that sampling within the latent space of
+variational autoencoders could provide a solution to the
+ensemblegenerationproblemfor a specificproteinsequence.
+Unlike most previous VAE approaches, which have been
+trainedon many differentproteins,the challengeof a protein
+specificVAE is that there is limitedtrainingdata. We reasoned
+that this limitation could be overcome by supplementing
+available crystal structures of the protein of interest in
+alternative conformations with snapshots from short MD
+trajectoriesstartedfrom each of these structures.For exploring
+this approach,we chosethe criticalcancertargetK-Rasas a
+modelsystemdue to its considerabletherapeuticimportance
+and the many availablestructures.^17
+We beganby exploringdifferentVAE architectures,training
+on ensemblesof MD simulationsfrom alternatecrystalforms
+of K-Ras(full detailsin the Methodssection),and evaluating
+the quality of 3D reconstruction following encoding and
+```
+```
+Received: September23, 2023
+Revised: February25, 2024
+Accepted: February26, 2024
+Published: March28, 2024
+```
+```
+pubs.acs.org/JCTC Article
+```
+```
+© 2024The Authors.Publishedby
+AmericanChemicalSociety
+2689
+```
+```
+https://doi.org/10.1021/acs.jctc.3c
+J. Chem.TheoryComput.2024,20, 2689− 2695
+```
+```
+This article is licensed under CC-BY-NC-ND 4.
+```
+Downloaded via ZHEJIANG UNIV on May 20, 2024 at 07:03:20 (UTC).
+
+```
+See https://pubs.acs.org/sharingguidelines for options on how to legitimately share published articles.
+```
+
+decoding.For encoding3D structuralinformation,we chose to
+use the 2D RoseTTAFoldtemplatefeatures;the VAE training
+
+seeks to minimizethe differencebetweeninputand output
+features for each training set structure.The reconstructed
+
+```
+templatefeaturesare then used as input templatefeaturesfor
+3D structuregenerationwith RoseTTAFold,alongwith the
+amino acid sequence. We evaluate the accuracy of
+reconstructionby computingthe RMSDbetweenthe input
+```
+Figure1.VAE structurereconstructionaccuracy.C-alphacoordinateRMSD(angstrom)of the closestAF2 predictedmodeland the reconstructed
+modelfrom the VAE decodedtemplatefeaturesgeneratedusing RoseTTAFold.Structuralsuperimpositionsfor 3 targetsare highlightedon the top
+with the targetcrystalin gray, the AF2 predictionin blue, and the VAE reconstructionin orange.
+
+Figure2.Latentspace PCA analysis.Each subplotdisplaysa 2D PCA projectionof the 256-dimensionallatent space.The trainingand generated
+sampleshave similardistributionsand surroundthe crystalstructure.
+
+```
+https://doi.org/10.1021/acs.jctc.3c
+2690
+```
+
+and outputatomiccoordinates(computedover C-alphaatoms
+here and throughout the manuscript). We generated new
+samplesby guidedexplorationin the latent space,followedby
+3D coordinategenerationwith RF (RoseTTAFold).
+The reconstruction accuracy of crystal structures not
+includedin the trainingset providesa roughlower boundon
+the accuracy with which our approach can recapitulate
+conformationsof interest.For each availableK-Rasstructure,
+we traineda VAE leavingout this structureand otherswithin 1
+Å coordinate RMSD and evaluated the accuracy of
+reconstruction following RoseTTAFold^5 3D coordinate
+generation. We obtained the best results with the soft-
+introspectiveVAE architecture(FigureS1), and the accuracy
+of reconstructionplateauedat∼ 256 latentspacedimensions
+(Figure S2). For mostof the targets (13/20), the
+reconstruction was within 1 Å coordinate RMSD of the
+input structure;for comparison,only 2/20 AF2 modelswere of
+subangstromaccuracy(Figure1 and TableS1).
+We next exploredthe possibilityof generatingplausibleK-
+Ras ensemblesby samplingin the latent space of trainedVAEs.
+To help ensurethat the sampledstructuresremainedbroadly
+consistentwith the sequenceand were physicallyplausible,we
+guidedsamplingby the consistencywith the AF2 predicted
+distancedistribution for the aminoacid sequence.Samples
+were generatedfrom a normaldistributionwith a mean of 0
+and variance of 1, decodedinto the correspondingC-beta
+(Cb) distancemap, the categoricalcross-entropy(CCE)to the
+AF2 predicteddistogramfor the sequencewas computed,and
+local optimizationin the latentspace was carriedout through
+gradientdescenton the CCE value,limitingthe total (latent
+space)distancetraversedfrom the startingpoint to prevent
+convergence. Principal component analysis (PCA) on the
+latent space (Figure2) showedthat the generatedand training
+sampleshave a similardistributionand surroundthe target
+crystalstructureas intended.
+
+```
+Usingthis VAE guidedsamplingapproach,we generatedK-
+Ras structureensemblesfor each target structure,again holding
+out the target,MD simulationsstartingfrom the target,along
+with all crystalstructureswithin1 Å coordinateRMSDof the
+target, and MD snapshots derived from them. Following
+decodingand RF structuregeneration,the coordinateRMSD
+to the target crystalwas computed over eitherthe entire
+structureor just the ligandbindingpocket(residueswith side
+chain atomswithin5 Å of ligandatoms).An advantageof our
+approach is that ensemblescan be generatedquite rapidly
+(comparedto MD simulations,for example),and as expected,
+the closestRMSDto the held-outstructuresdecreaseswith
+increasingnumberof samples(FigureS3). For comparison,we
+provided the template features of the training set MD
+simulationsnapshotsas directinput to RoseTTAFold(MD
++ RoseTTAFold).We foundthat ensemblesof 3000 generated
+structures sampled more closely to the held-out crystal
+structuresthan the closesttrainingset crystalstructure,the
+closesttrainingset MD simulationsnapshot,the closestMD +
+RoseTTAFoldstructure,and the closestAF2 modelfor most
+targets (Figure3 and TableS2; the variationin the input
+training crystals impacts the closeness of the generated
+structuresto the targetcrystal;FiguresS4 and S5A,B).The
+comparisonwith AF2 is vital as it showcasesthe currentstate-
+of-the-artin single-statestructureprediction;AF2 generates
+diversestructuresfor each target by incorporatingvariationsin
+input structuraltemplatesand input MSA features(TableS5,
+′′1.12.1Trainingprocedure,′′in the SupportingInformation,
+Jumperet al., 2021^4 ), therebyprovidingvaluableinsightsinto
+proteinconformationaldiversity.
+For small molecule docking calculations, sampling of
+alternative ligandbinding pocket geometriesis particularly
+important.Comparisonof the C-alphaRMSDover the ligand
+binding pocket residues between the closest sampled
+conformationin the generatedensembles and the held-out
+structuresshowedthat the ensemblessamplecloserthan the
+```
+Figure3.K-Rasoverallstructurereconstructionevaluation.The VAE enablessamplingcloserto held-outK-Rascrystalstructuresthan MD, MD
+templatefeaturespassedinto RoseTTAFold,or AlphaFoldgeneratedstructures.For each test crystalstructure(namebelowbars),a VAE model
+was trainedusing MD simulationdata from all crystalstructureswith greaterthan 1 Å C-alphaRMSDand used to generatea structureensemble.
+Bars indicatethe coordinateerror to the test crystalof the closesttrain crystal,the closesttrainingsample,the closestAF2 model,the closestMD +
+RoseTTAFoldsample,and the closestVAE generatedsample.
+
+```
+https://doi.org/10.1021/acs.jctc.3c
+2691
+```
+
+closesttrainingMD snapshotor crystalstructurein most cases
+(Figure 4). Structuralsuperimpositions show that the
+generatedsamplesdo not clash with the superimposedligand
+from the targetstructure,highlightedin orange,and therefore
+can be dockedwithouthindrance,whereasfor the closesttrain
+crystaland the closestAF2 model,there are significantclashes
+(Figure4 and TableS3).
+We used the physicallybasedRosettaGA-liganddocking
+methodto dock ligandsonto all the modelsgeneratedfrom the
+VAE, the trainingexamples,and the AF2 models.Consistent
+with the aboveobservations,the RMSDover the ligandatoms
+was consistentlylowerfor the ensemblegenerated samples
+than that for the AF2 predictionsand lower in most cases than
+the docksto the MD ensembles(Figure5 and TablesS4 and
+
+```
+S5). Whileconsistent,the improvementswere relativelysmall;
+an improvedliganddockingmethodcould benefitmore from
+bettermodelingof the bindingpocket,particularlyfor larger
+boundpartners,such as 6H46with a DARPINpeptideand
+5E95 with the NS1 syntheticbindingprotein.
+```
+# ■ DISCUSSION
+
+```
+Our VAE-basedsamplingapproachenablesextrapolationfrom
+combinations of MD simulation snapshots initiated from
+multiple knowncrystalstructuresto generateensemblesof
+conformers that more closely resemble held-out crystal
+structures. These ensembles can be generated with low
+computationalcost (comparedto the input trajectories)and
+sample alternativeligandbinding site geometriesfor small
+```
+Figure4.K-Rascrypticpocketreconstructionevaluation.As in Figure3, but with the C-alphacoordinateerror to the test crystalstructure
+computedover only the bindingsite residues(definedas the residueswithin5 Å in C-alphacoordinatespace of the ligandbindingpocket).The
+structuralsuperimpositions(top) show the ligandinhibitordockedin the targetcrystalwith the crypticbindingpocketand the ligandhighlighted
+in orangeon the targetcrystalstructure.
+
+Figure5.Small moleculedockinginto VAE generatedensembles.Ligandsfrom held-outcrystalstructureswere dockedinto proteinconformers
+using the GA-liganddock. Left: the held-outcrystalstructurecomplex(column1) and the closestdockedcomplex(in terms of coordinateRMSD
+over the ligandatoms)amongthe trainingset crystalstructures(column2), the MD snapshots(column3), the AlphaFoldmodels(column4), and
+the VAE ensembles(column5). The closestC-alphaRMSDsof the crypticpocketof dockedstructuresand lowestRMSDover ligandatoms
+(ligandRMSD)are indicatedon the bar chartson the right.
+
+```
+https://doi.org/10.1021/acs.jctc.3c
+2692
+```
+
+moleculeliganddocking.We go beyondpreviousstudiesusing
+VAEs to modelthe spacesampledby MD simulationsby
+takingadvantageof the sophisticatedunderstandingof protein
+sequence−structurerelationshipsimplicitin the AF2 and RF
+deep neural networksin two ways:first, we use the AF
+predicted distance distributions to focus the latent space
+samplingon regionsconsistentwith the aminoacid sequence,
+and second,we use RF to generate3D coordinatesfrom the
+outputdistancemaps,whichensuresphysicalrealismand local
+sequence-structurecompatibility.
+Thereare clear paths forwardfor improvingour approach.
+First, the reconstruction error of∼1 Å C-alphacoordinate
+RMSDfor the knowncrystalstructuresis reasonable,but the
+challengeis that the differencesbetweenmany of the different
+conformationsare also of this order,limitingthe abilityof our
+approach to precisely sample alternative states. VAE
+architectures with lowerreconstruction errors couldlikely
+improvethe methodas couldtrainingthe VAE on the FAPE
+loss followingRoseTTAfoldcoordinategeneration(we did not
+observe this in preliminarytests, but this warrantsfurther
+exploration).Second,while the AF2 CCE metricprovidesa
+reasonable guidepost, AF2 is trained to generate single
+structures, and hence, the use of this measure to guide
+samplingcould limit diversity.Betterresultscould perhapsbe
+obtained by minimizing toward a predicted ensemble of
+structuresfor a given targetor subsamplingthe targetMSA
+duringRoseTTAFoldstructuregeneration^18 to introducemore
+diversityin outputstructures.Despitethese limitations,our
+resultsshow the utilityof generativemodelsfor modelingthe
+conformationalensemblesthat determineproteinfunctionand
+drugability.
+
+# ■ METHODS
+
+**InputDataSetupand IncrementalLearning.** For the
+input data set, we began by selecting distinct K-Ras
+conformations deposited in the PDB that are at least an
+angstrom(calculatedover C-alphacoordinates)away from
+each other as our ‘trainingset crystalstructures.’In additionto
+the RMSDcutofffilter, we also selectedconformationsthat
+had a deposited/known inhibitor. We selected 20 K-Ras
+structureswith these criteria.We ran MD simulationsfor 10 ns
+startingwith each K-Rascrystalstructurein the ligand-free
+conformation(apo)and selectedevery 50 ps snapshotfrom 5
+independenttrajectories,givinga total of 1000 MD snapshots
+for each startingstructure.AMBER19SB force field^19 with
+TIP3Pwatermodel^20 was used in a periodicboundarybox.
+Langevindynamicswas run at a constanttemperatureof 300 K
+and pressureof 1 atm. For each target crystal,the trainingdata
+consistedof MD snapshotsof the trainingset crystalstructures
+that were at least an angstrom (calculated over C-alpha
+coordinates)away from it. The final 20 K-Rasconformations
+that we chose were 4DSO,5XCO, 5YXZ,6PGP, 7EWB,
+8AFD, 8DNI, 4LV6, 4L9W, 5V9O, 6B0V,6N2K, 6P8W,
+7RT1,7U8H,4Q21,5V71,5E95,6H46,and 7C40.All 3D
+structures were converted to 2D template features from
+RoseTTAFold.^5 The, 2D templatefeaturestake the form of a
+tensorcapturing6D transformationsbetweeneverypair of
+residueswithina 20 Å range,specificallyfocusingon C _β_ −C _β_
+distances.These featuresare extractedfrom the Cartesian
+coordinates of the N, Ca, C, and Cb atoms. The 6D
+coordinatesencompasspairwisedistancesand angles(omega,
+theta, and phi). We chose to use the raw distanceand
+
+```
+orientation values for training the model for a more
+interpretablelatentspace.
+After the first roundof trainingusing only MD snapshotsas
+the trainingdata, we then generated3000 samplesfrom the
+latent spacethat were optimizedfor the scoremetricand
+passedthe diversityfilter (followingthe protocollaid out in the
+Samplingin LatentSpaceThroughGradientOptimizationof
+Score Metric(CCE)section).These3000 generatedstructures
+were then concatenatedon the initial MD snapshottrainingset
+to form an ‘incrementallearning’trainingset of structuresfor
+the model.Usingthis new set, for each target,the trainingruns
+were set up again from scratch.Incrementallearningin this
+case benefitsthe VAE by providinga largerand more diverse
+set of structuresfor exploration,improvingthe representation
+of structural diversity, refining metric optimization, and
+ultimatelyincreasingthe accuracyof the generatedsamples
+to the targetcrystal.
+SoftIntrospectiveVAEObjectiveand Training. We
+found best resultsusinga Soft-IntrospectiveVAE architec-
+ture,^21 whichhas been shownto have higheroutputresolution
+than the vanillaVAE.^22 The objectivefunctionof this model,
+along with the traditional VAE objective function of
+reconstructionloss and KL divergence,has adversariallosses
+incorporatedlike GANs^23 but is trainedintrospectively.In the
+case of SI-VAEs,the encoder is the implicit‘discriminator’
+where it is induced to distinguish, through the ELBO
+(evidencelowerbound)^20 valuesthat it assignsto the real
+and generatedsamples.The decoderis the ‘generator’whereit
+is induced to generate samples to ‘fool’ the encoder
+(discriminator).However,unlikeGANs,the SI-VAEmodel
+does not convergeto the data distribution,but to an entropy-
+regularizedversionof it.^21
+Using default parameters from Daniel et al. (2020),^21
+encoderwas trainedwith the followingobjective(eq 1):
+```
+###### = · + +
+
+###### ·
+
+###### +
+
+```
+L x z s L x x
+```
+```
+s L z
+```
+```
+z
+```
+###### ( , ) ( () KL())
+
+###### 1
+
+###### 2
+
+```
+exp( 2 ( (Dec())
+```
+```
+KL(Dec())))
+```
+```
+encoder rec r kl
+```
+```
+rec r
+```
+```
+neg (1)
+```
+```
+where L r( x ) = reconstructionloss, s = 2, β rec= 10, β kl= 1×
+10 −^3 , β neg= latent dimension= 256, and Dec = traineddecoder
+of soft-introspectiveVAE.
+The decoderwas optimizedusingthe followingobjective
+(eq 2):
+```
+```
+= · + ·
+```
+```
++ ·
+```
+```
+L x z s L x s z
+```
+```
+L z
+```
+```
+( , ) () ( KL(Dec())
+```
+```
+(Dec()))
+```
+```
+r
+```
+```
+r r
+```
+```
+decoder rec kl
+```
+```
+rec (2)
+```
+```
+where L r( x ) = reconstructionloss, s = 2, β rec= 10, β kl= 1×
+10 −^3 , and γ r= 1.
+The reconstructionloss was the mean-squarederror loss
+over all distancesand orientationson the decodedtemplate
+featuresfrom the model.
+The VAE architecturecomprises3 ResNetblocksin both
+the encoderand decoder,with each block having64 features.
+The encoder incorporates convolutionallayers with batch
+normalizationand leaky ReLUactivation,followedby linear
+layers, leading to a latent spaceof 256 dimensions. The
+decoder consistsof linear layersto reconstructthe input
+features followed by transposed convolutions and ResNet
+blocks. LeakyReLU activation is applied throughout the
+```
+```
+https://doi.org/10.1021/acs.jctc.3c
+2693
+```
+
+network.Skip connectionsare implementedby using residual
+connectionsin the ResNetblocks.Batchnormalizationis used
+in both the encoderand decoder,with weightdecay appliedto
+preventoverfitting.Transposedconvolutionshandleupsam-
+pling in the decoder,and downsamplingis achievedthrough
+convolutionallayerswith a strideof 2 in the encoder.This
+comprehensive architectureensures effective encodingand
+decodingfor VAE, contributingto its overallperformanceand
+reproducibility. The modelwas optimized using individual
+optimizersfor the encoderand decoder,both of whichwere
+initializedwith Adam( _β_ 1 = 0.9, _β_ 2 = 0.999)with learningrate
+1 × 10 −^3 , with an effectivebatch size of 64.
+**Sampling in LatentSpaceThroughGradientOpti-
+mizationof ScoreMetric(CCE).** To obtainthe optimized
+structures using the trained decoder, we used gradient
+optimizationin the latentspace.We first randomlysample _n_
+numbersfrom the standardGaussiandistribution(mean= 0,
+standarddeviation= 1) with dimensionsequal to that of the
+latent space.The initializedlatent space coordinatesare set to
+be trainable.Each sampleis then decodedinto its respective
+templatefeatures,and Cb distancesare discretizedthrough
+radialbasis functionto ensure back-propagation.The score
+metricwe chose to optimizeis the minimumcategoricalcross-
+entropy(CCE)amongall 5 AF2 predictedCb distogramsof
+the target structureand the generatedCb distances(eq 3). The
+Adamoptimizermodifiesthe latentspace sampleto minimize
+this score metric.This processis repeateduntil convergence.
+To ensure that diversity is maintained, the latent space
+coordinatesare restrictedto exploreonly _d_ (=10)euclidean
+distance in the latent space from their initial starting
+coordinates.The overallgoal of this explorationtechniqueis
+to searchthe latentspaceto find a bettersolutionnear the
+initialrandomlygeneratedcoordinates.The final, converged
+latent spacecoordinates are decoded into their respective
+templatefeaturesand passedinto RoseTTAFold,alongwith
+the targetMSA for structuralmodeling.
+
+```
+CCE to AF2 models ( y , y )= y ·log( y )
+i
+```
+```
+N
+i i
+(3)
+```
+where _N_ is the numberof categories in the predictedCb
+distograms, _yi_ is the true distributionof Cb distancesfor target,
+_yi_ is the generatedCb distances.
+**DockingProtocol.** For each dockingcase, the inhibitor
+ligandwas dockedto the receptormodelusing the protein−
+liganddockingmethodRosettaGALigandDock.^23 The ligand
+atomiccoordinatesfoundin complexcrystalstructureswere
+extractedand used to preparethe complexfor liganddocking.
+The ligands were protonated and the AM1-BCC partial
+chargeswere calculatedusing the tools providedby openbabel,
+Antechamberin the AMBERsuite, and UCSFChimera.^25 The
+ligandinformationwas convertedto the parameterformatthat
+is compatiblewith the Rosettagenericpotential( _GenFF_.^24 ).
+The initial positionof the ligand to initiate docking was
+determinedby superimposingthe complexcrystalstructureon
+the sampledproteinbackbone.Protein−liganddockingwas
+performedby allowingthe side chainsthat are within6A of the
+ligandto be flexible.The receptormodelswere optimizedin
+advanceusing RosettaFastRelaxwith high constraintson each
+backbone.We ran 20 paralleldockingruns for each receptor
+model and ligand pair, and the combined results were
+analyzed, where the best scoring generated sample was
+
+```
+comparedto best scoringmodelsof the trainingset, training
+crystals,and AlphaFoldmodels.
+```
+# ■ ASSOCIATEDCONTENT
+
+##### * sı SupportingInformation
+
+```
+The Supporting Information is availablefree of chargeat
+https://pubs.acs.org/doi/10.1021/acs.jctc.3c01057.
+Main findings,offeringadditionalinsightsand analyses;
+figures illustrating the comparison of reconstruction
+performance between different VAE models, the
+relationship between latent dimension and distance
+RMSDerror, and the impactof the numberof samples
+generatedin the latentspaceon accuracy;distribution
+analysesof C-alphacoordinateRMSDs,and detailed
+comparisontablesprovidefurthercontext(PDF)
+```
+# ■ AUTHORINFORMATION
+
+```
+CorrespondingAuthor
+SanaaMansoor− Departmentof Biochemistry,Universityof
+Washington,Seattle,Washington98195,UnitedStates;
+Institutefor ProteinDesignand MolecularEngineering
+GraduateProgram,Universityof Washington,Seattle,
+Washington98195,UnitedStates; orcid.org/0009-0004-
+5992-060X;Email:sanaamansoor@google.com
+```
+```
+Authors
+MinkyungBaek− Departmentof Biochemistry,Universityof
+Washington,Seattle,Washington98195,UnitedStates;
+Institutefor ProteinDesign,Universityof Washington,
+Seattle,Washington98195,UnitedStates;Schoolof
+BiologicalSciences,SeoulNationalUniversity,Seoul08826,
+Republicof Korea
+HahnbeomPark− Departmentof Biochemistry,Universityof
+Washington,Seattle,Washington98195,UnitedStates;
+Institutefor ProteinDesign,Universityof Washington,
+Seattle,Washington98195,UnitedStates;BrainScience
+Institute,KoreaInstituteof Scienceand Technology,Seoul
+02792,Republicof Korea
+Gyu Rie Lee− Departmentof Biochemistry,Universityof
+Washington,Seattle,Washington98195,UnitedStates;
+Institutefor ProteinDesign,Universityof Washington,
+Seattle,Washington98195,UnitedStates; orcid.org/
+0000-0002-9119-
+DavidBaker− Departmentof Biochemistry,Universityof
+Washington,Seattle,Washington98195,UnitedStates;
+Institutefor ProteinDesignand HowardHughesMedical
+Institute,Universityof Washington,Seattle,Washington
+98195,UnitedStates
+Completecontactinformationis availableat:
+https://pubs.acs.org/10.1021/acs.jctc.3c
+```
+```
+Notes
+The authorsdeclareno competingfinancialinterest.
+```
+# ■ ACKNOWLEDGMENTS
+
+```
+We wouldlike to thank Doug Tischer,Ivan Anishchanka,Sam
+Pellockfor helpfulcommentsand suggestions.This work was
+supportedby Microsoft(S.M.,M.B., D.B., and generousgifts
+of Azure computing time), Eric and Wendy Schmidtby
+recommendation of the Schmidt Futures (H.P.), the
+Washington ResearchFoundation, InnovationFellowsPro-
+gram (G.R.L.), the Defense Threat Reduction Agency
+```
+```
+https://doi.org/10.1021/acs.jctc.3c
+2694
+```
+
+(G.R.L.),the OpenPhilanthropyProjectImprovingProtein
+DesignFund (G.R.L.),the AudaciousProjectat the Institute
+for ProteinDesign(D.B.),a gift from Amgen(D.B.),and the
+HowardHughesMedicalInstitute(D.B.).
+
+# ■ REFERENCES
+
+(1) Beglov,D.; Hall, D. R.; Wakefield,A. E.; Luo, L.; Allen,K. N.;
+Kozakov,D.; Whitty,A.; Vajda,S. Exploringthe StructuralOriginsof
+CrypticSites on Proteins. _Proc.Natl.Acad.Sci. U. S. A._ 2018 , _115_
+(15), No. E3416−E3425.
+(2) Vajda,S.; Beglov,D.; Wakefield,A. E.; Egbert,M.; Whitty,A.
+Cryptic Binding Sites on Proteins:Definition, Detection, and
+Druggability. _Curr.Opin.Chem.Biol._ 2018 , _44_ , 1−8.
+(3) Vijayan,R. S. K.; He, P.; Modi,V.; Duong-Ly,K. C.; Ma, H.;
+Peterson,J. R.; Dunbrack,R. L., Jr; Levy,R. M. Conformational
+Analysisof the DFG-OutKinaseMotifand BiochemicalProfilingof
+StructurallyValidatedType II Inhibitors. _J. Med.Chem._ 2015 , _58_ (1),
+466 −479.
+(4) Jumper,J.; Evans,R.; Pritzel,A.; Green,T.; Figurnov,M.;
+Ronneberger, O.; Tunyasuvunakool, K.; Bates, R.; Žídek,A.;
+Potapenko,A.; et al. HighlyAccurateProteinStructurePrediction
+with AlphaFold. _Nature_ 2021 , _596_ (7873), 583 −589.
+(5) Baek, M.; DiMaio, F.; Anishchenko, I.; Dauparas, J.;
+Ovchinnikov,S.; Lee, G. R.; Wang,J.; Cong,Q.; Kinch,L. N.;
+Schaeffer,R. D.; et al. AccuratePredictionof ProteinStructuresand
+InteractionsUsinga Three-TrackNeuralNetwork. _Science_ 2021 , _373_
+(6557), 871 −876.
+(6) Cimermancic,P.; Weinkam,P.; Rettenmaier,T. J.; Bichmann,L.;
+Keedy, D. A.; Woldeyes, R. A.; Schneidman-Duhovny, D.;
+Demerdash,O. N.; Mitchell,J. C.; Wells,J. A.; et al. CryptoSite:
+Expanding the DruggableProteome by Characterization and
+Predictionof CrypticBindingSites. _J. Mol.Biol._ 2016 , _428_ (4),
+709 −719.
+(7) Kimura,S. R.; Hu, H. P.; Ruvinsky,A. M.; Sherman,W.; Favia,
+A. D. Deciphering CrypticBindingSites on Proteinsby Mixed-
+SolventMolecularDynamics. _J. Chem.Inf. Model._ 2017 , _57_ (6),
+1388 −1401.
+(8) Meller,A.; De Oliveira,S.; Davtyan,A.; Abramyan,T.; Bowman,
+G. R.; van den Bedem,H. Discoveryof a CrypticPocketin the AI-
+PredictedStructureof PPM1DPhosphataseExplainsthe BindingSite
+and Potencyof Its AllostericInhibitors. _Front.Mol.Biosci._ 2023 , _10_ ,
+1171143.
+(9) Sun, Z.; Wakefield,A. E.; Kolossvary,I.; Beglov,D.; Vajda,S.
+Structure-BasedAnalysisof Cryptic-SiteOpening. _Structure_ 2020 , _28_
+(2), 223−235.e2.
+(10) Larson,S. M.; England,J. L.; Desjarlais,J. R.; Pande,V. S.
+ThoroughlySamplingSequenceSpace:Large-ScaleProteinDesignof
+StructuralEnsembles. _ProteinSci._ 2002 , _11_ (12), 2804−2813.
+(11) Mandell,D. J.; Coutsias,E. A.; Kortemme,T. Sub-angstrom
+accuracy in proteinloop reconstruction by robotics-inspired
+conformationalsampling. _Nat.Methods_ 2009 , _6_ (8), 551−552.
+(12) Anand,N.; Huang,P. S. GenerativeModelingfor Protein
+Structures.In _Advances in NeuralInformation ProcessingSystems_ ;
+CurranAssociates,Inc., 2018.
+(13) Ingraham,J.; Garg, V. K.; Barzilay,R.; Jaakkola,T. Generative
+Modelsfor Graph-BasedProtein Design.In _Advancesin Neural
+InformationProcessingSystems_ ;CurranAssociates,Inc., 2019.
+(14) Eguchi,R. R.; Choe,C. A.; Huang,P. S.; Slusky,J. Ig-VAE:
+GenerativeModelingof ProteinStructureby Direct3D Coordinate
+Generation. _PloSComput.Biol._ 2022 , _18_ (6), No. e1010271.
+(15) Tian, H.; Jiang, X.; Trozzi,F.; Xiao, S.; Larson,E. C.; Tao, P.
+ExploreProteinConformationalSpacewith VariationalAutoencoder.
+_Front.Mol.Biosci._ 2021 , _8_ , 781635.
+(16) Tsuchiya,Y.; Taneishi,K.; Yonezawa,Y. Autoencoder-Based
+Detectionof DynamicAllosteryTriggeredby LigandBindingBased
+on MolecularDynamics. _J. Chem.Inf. Model._ 2019 , _59_ (9), 4043−
+4051.
+
+```
+(17) Pantsar, T. The CurrentUnderstandingof KRASProtein
+Structureand Dynamics. Comput.Struct.Biotechnol.J. 2020 , 18 , 189−
+198.
+(18) Meller,A.; Bhakat,S.; Solieva,S.; Bowman,G. R. Accelerating
+CrypticPocketDiscoveryUsingAlphaFold. J. Chem.TheoryComput.
+2023 , 19 , 4355.
+(19) Tian, C.; Kasavajhala,K.; Belfon,K. A. A.; Raguette,L.; Huang,
+H.; Migues,A. N.; Bickel,J.; Wang,Y.; Pincay,J.; Wu, Q.; et al.
+ff19SB:Amino-Acid-SpecificProteinBackboneParametersTrained
+againstQuantumMechanicsEnergySurfacesin Solution. J. Chem.
+TheoryComput. 2020 , 16 (1), 528−552.
+(20) Jorgensen,W. L.; Chandrasekhar,J.; Madura,J. D.; Impey,R.
+W.; Klein, M. L. Comparisonof SimplePotentialFunctionsfor
+SimulatingLiquidWater. J. Chem.Phys. 1983 , 79 (2), 926−935.
+(21) Daniel,T.; Tamar,A.. Soft-IntroVAE:Analyzingand Improving
+the IntrospectiveVariationalAutoencoder ;arXiv,2020..
+(22) Kingma,D. P.; Welling,M.. Auto-encodingVariationalBayes.
+In ProceedingsOf The 2ndInternationalConference On Learning
+Representations(ICLR 2014 - ConferenceTrack) ;arXiv, 2014
+(23) Goodfellow,I. J.; Pouget-Abadie,J.; Mirza,M.; Xu, B.; Warde-
+Farley,D.; Ozair,S.; Courville,A.; Bengio,Y.. GenerativeAdversarial
+Networks ;arXiv,2014..
+(24) Park, H.; Zhou,G.; Baek, M.; Baker,D.; Dimaio,F. Force Field
+OptimizationGuidedby Small MoleculeCrystalLatticeData Enables
+ConsistentSub-AngstromProtein-LigandDocking. J. Chem.Theory
+Comput. 2021 , 17 (3), 2000.
+(25) Pettersen,E. F.; Goddard,T. D.; Huang,C. C.; Couch,G. S.;
+Greenblatt,D. M.; Meng,E. C.; Ferrin,T. E. UCSFChimera- A
+Visualization System for Exploratory Research and Analysis. J.
+Comput.Chem. 2004 , 25 (13), 1605.
+```
+```
+https://doi.org/10.1021/acs.jctc.3c
+2695
+```
+
